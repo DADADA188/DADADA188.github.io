@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>充电站地图抓取工具</title>
+    <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=0330b20c3425a00c4a2459da6183c732"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/v4-shims.min.css">
@@ -486,18 +487,107 @@
             });
         }
 
-        // 搜索充电站
-        function searchStations() {
-            const location = locationInput.value.trim();
-            const radius = parseInt(radiusSelect.value);
-            
-            if (!location) {
-                alert('请输入项目位置');
-                return;
+       // 初始化高德地图
+function initMap() {
+    // 创建地图实例
+    var map = new AMap.Map("mapContainer", {
+        zoom: 15,
+        center: [116.405, 39.908],
+        viewMode: '3D'
+    });
+    
+    // 添加地图控件
+    map.addControl(new AMap.Scale());
+    map.addControl(new AMap.ToolBar());
+    
+    return map;
+}
+
+// 搜索周边充电站
+function searchStations() {
+    const location = locationInput.value.trim();
+    const radius = parseInt(radiusSelect.value);
+    
+    if (!location) {
+        alert('请输入位置');
+        return;
+    }
+    
+    showLoading();
+    
+    // 初始化地图
+    const map = initMap();
+    
+    // 地理编码获取经纬度
+    AMap.plugin('AMap.Geocoder', function() {
+        var geocoder = new AMap.Geocoder();
+        geocoder.getLocation(location, function(status, result) {
+            if (status === 'complete' && result.geocodes.length) {
+                var point = result.geocodes[0].location;
+                map.setCenter(point);
+                
+                // 添加搜索半径圈
+                var circle = new AMap.Circle({
+                    center: point,
+                    radius: radius * 1000,
+                    strokeColor: "#165DFF",
+                    strokeWeight: 2,
+                    strokeOpacity: 0.3,
+                    fillColor: "#165DFF",
+                    fillOpacity: 0.1
+                });
+                map.add(circle);
+                
+                // 搜索周边充电站
+                AMap.plugin('AMap.PlaceSearch', function() {
+                    var placeSearch = new AMap.PlaceSearch({
+                        pageSize: 20,
+                        pageIndex: 1,
+                        map: map,
+                        panel: "stationsList"
+                    });
+                    placeSearch.searchNearBy('充电站', point, radius * 1000, function(status, result) {
+                        hideLoading();
+                        if (status === 'complete') {
+                            // 处理搜索结果
+                            processSearchResults(result);
+                        } else {
+                            alert('搜索失败，请稍后重试');
+                        }
+                    });
+                });
+            } else {
+                hideLoading();
+                alert('无法找到该位置，请检查输入是否正确');
             }
-            
-            showLoading();
-            
+        });
+    });
+}
+
+// 处理搜索结果
+function processSearchResults(result) {
+    if (!result || !result.pois) return;
+    
+    // 清空之前的标记
+    stationsContainer.innerHTML = '';
+    
+    result.pois.forEach((poi, index) => {
+        // 在地图上添加标记
+        var marker = new AMap.Marker({
+            position: poi.location,
+            title: poi.name,
+            map: map
+        });
+        
+        // 添加点击事件
+        marker.on('click', function() {
+            showStationDetail(poi);
+        });
+        
+        // 更新列表显示
+        updateStationList(poi);
+    });
+}
             // 模拟API请求延迟
             setTimeout(() => {
                 // 模拟获取数据
