@@ -3,12 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>充电站地图抓取工具</title>
+    <title>充电站地图工具</title>
     <script type="text/javascript" src="https://webapi.amap.com/maps?v=2.0&key=333f6fb91c4ca49187f711ae5649ae6e"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/v4-shims.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -18,352 +16,94 @@
                         primary: '#165DFF',
                         secondary: '#36D399',
                         accent: '#FF6B6B',
-                        warning: '#FFAA33',
-                        dark: '#1E293B',
-                        light: '#F8FAFC'
-                    },
-                    fontFamily: {
-                        inter: ['Inter', 'sans-serif'],
-                    },
+                    }
                 }
             }
         }
     </script>
-    
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .glass-effect {
-                backdrop-filter: blur(10px);
-                background: rgba(255, 255, 255, 0.1);
-            }
-            .gradient-bg {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            }
-            .station-marker {
-                animation: pulse 2s infinite;
-            }
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); opacity: 1; }
-                50% { transform: scale(1.1); opacity: 0.7; }
-            }
-            .slide-in {
-                animation: slideIn 0.5s ease-out;
-            }
-            @keyframes slideIn {
-                from { transform: translateY(20px); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
-            }
-            .fade-in {
-                animation: fadeIn 0.5s ease-out;
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-        }
-    </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen font-inter">
-    <!-- 顶部导航栏 -->
-    <nav class="bg-white/90 backdrop-blur-md shadow-lg fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                        <i class="fa fa-map-marker text-white text-lg"></i>
-                    </div>
-                    <h1 class="text-xl font-bold text-dark">充电站地图抓取工具</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <button id="helpBtn" class="text-gray-600 hover:text-primary transition-colors">
-                        <i class="fa fa-question-circle text-lg"></i>
-                    </button>
-                    <button id="settingsBtn" class="text-gray-600 hover:text-primary transition-colors">
-                        <i class="fa fa-cog text-lg"></i>
-                    </button>
-                </div>
+<body class="bg-gray-50 min-h-screen">
+    <!-- 顶部导航 -->
+    <nav class="bg-white shadow-md fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-map-marker text-primary text-xl"></i>
+                <h1 class="text-lg font-bold">充电站地图工具</h1>
             </div>
         </div>
     </nav>
 
-    <!-- 主要内容区域 -->
-    <main class="pt-20 pb-10 px-4 sm:px-6 lg:px-8">
+    <!-- 主要内容 -->
+    <main class="pt-16 pb-8 px-4">
         <!-- 搜索区域 -->
-        <div class="max-w-7xl mx-auto mb-8 slide-in">
-            <div class="bg-white rounded-2xl shadow-xl p-6">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <div class="flex-1">
-                        <div class="relative">
-                            <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input 
-                                type="text" 
-                                id="locationInput" 
-                                placeholder="输入项目位置（如：北京市朝阳区）" 
-                                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                            >
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <select id="radiusSelect" class="px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+        <div class="max-w-2xl mx-auto mb-6 mt-8">
+            <div class="bg-white rounded-xl shadow-lg p-4">
+                <div class="flex flex-col space-y-3">
+                    <input 
+                        type="text" 
+                        id="locationInput" 
+                        placeholder="输入位置（如：北京市朝阳区）" 
+                        class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                        value="北京市朝阳区"
+                    >
+                    <div class="flex space-x-2">
+                        <select id="radiusSelect" class="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
                             <option value="1">1公里</option>
                             <option value="3" selected>3公里</option>
                             <option value="5">5公里</option>
-                            <option value="10">10公里</option>
-                            <option value="20">20公里</option>
                         </select>
-                        <button id="searchBtn" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-all shadow-lg hover:shadow-xl">
-                            <i class="fa fa-search mr-2"></i>
-                            搜索
+                        <button id="searchBtn" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-colors">
+                            <i class="fa fa-search mr-2"></i>搜索
                         </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 数据概览卡片 -->
-        <div class="max-w-7xl mx-auto mb-8 fade-in">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-primary">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm">周边充电站</p>
-                            <h3 class="text-3xl font-bold text-dark mt-1" id="stationCount">0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                            <i class="fa fa-charging-station text-primary text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-secondary">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm">平均服务费</p>
-                            <h3 class="text-3xl font-bold text-dark mt-1" id="avgServiceFee">¥0.00</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center">
-                            <i class="fa fa-money text-secondary text-xl"></i>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-warning">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-gray-600 text-sm">平均评分</p>
-                            <h3 class="text-3xl font-bold text-dark mt-1" id="avgRating">0.0</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
-                            <i class="fa fa-star text-warning text-xl"></i>
-                        </div>
-                    </div>
-                </div>
+        <!-- 地图区域 -->
+        <div class="max-w-4xl mx-auto mb-6">
+            <div class="bg-white rounded-xl shadow-lg p-4">
+                <h2 class="text-lg font-semibold mb-3">地图视图</h2>
+                <div id="mapContainer" class="w-full h-[400px] bg-gray-100 rounded-lg relative"></div>
             </div>
         </div>
 
-        <!-- 主要内容区域 -->
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- 左侧：地图区域 -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-2xl shadow-xl p-6 h-[600px]">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-bold text-dark">充电站分布图</h2>
-                        <div class="flex space-x-2">
-                            <button id="zoomInBtn" class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                <i class="fa fa-plus text-sm"></i>
-                            </button>
-                            <button id="zoomOutBtn" class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                <i class="fa fa-minus text-sm"></i>
-                            </button>
-                            <button id="centerMapBtn" class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors">
-                                <i class="fa fa-crosshairs text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="mapContainer" class="w-full h-[520px] bg-gray-100 rounded-xl relative overflow-hidden">
-                        <!-- 加载指示器 -->
-                        <div id="loadingIndicator" class="absolute inset-0 bg-white/80 flex items-center justify-center z-20 hidden">
-                            <div class="flex flex-col items-center">
-                                <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                                <p class="mt-4 text-gray-600">正在搜索周边充电站...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 右侧：数据展示区域 -->
-            <div class="lg:col-span-1 space-y-6">
-                <!-- 充电站列表 -->
-                <div class="bg-white rounded-2xl shadow-xl p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-xl font-bold text-dark">充电站列表</h2>
-                        <div class="text-sm text-gray-500" id="stationListCount">0个结果</div>
-                    </div>
-                    <div id="stationsList" class="max-h-[300px] overflow-y-auto pr-2 space-y-3">
-                        <div class="text-center text-gray-500 py-8">
-                            <i class="fa fa-search text-2xl mb-2"></i>
-                            <p>请输入位置并点击搜索</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 数据统计图表 -->
-                <div class="bg-white rounded-2xl shadow-xl p-6">
-                    <h2 class="text-xl font-bold text-dark mb-4">数据统计</h2>
-                    <div id="statsChart" class="w-full h-[200px]"></div>
-                </div>
-
-                <!-- 筛选条件 -->
-                <div class="bg-white rounded-2xl shadow-xl p-6">
-                    <h2 class="text-xl font-bold text-dark mb-4">筛选条件</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">运营商</label>
-                            <select id="operatorFilter" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                <option value="all">全部运营商</option>
-                                <option value="国家电网">国家电网</option>
-                                <option value="特来电">特来电</option>
-                                <option value="星星充电">星星充电</option>
-                                <option value="云快充">云快充</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">充电类型</label>
-                            <select id="typeFilter" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                <option value="all">全部类型</option>
-                                <option value="直流快充">直流快充</option>
-                                <option value="交流慢充">交流慢充</option>
-                                <option value="超充">超充</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">评分</label>
-                            <select id="ratingFilter" class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-                                <option value="all">全部评分</option>
-                                <option value="4">4分以上</option>
-                                <option value="3">3分以上</option>
-                                <option value="2">2分以上</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 详细信息模态框 -->
-        <div id="stationModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto mx-4">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold text-dark" id="modalTitle">充电站详情</h3>
-                        <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
-                            <i class="fa fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    <div id="modalContent" class="space-y-4">
-                        <!-- 详细信息将在这里动态生成 -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 帮助模态框 -->
-        <div id="helpModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto mx-4">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold text-dark">使用帮助</h3>
-                        <button id="closeHelpBtn" class="text-gray-500 hover:text-gray-700">
-                            <i class="fa fa-times text-xl"></i>
-                        </button>
-                    </div>
-                    <div class="space-y-4 text-gray-600">
-                        <p>1. 输入项目位置（如：北京市朝阳区）</p>
-                        <p>2. 选择搜索半径（1-20公里）</p>
-                        <p>3. 点击搜索按钮获取周边充电站信息</p>
-                        <p>4. 地图上会显示充电站位置，点击标记查看详情</p>
-                        <p>5. 使用筛选条件可以进一步缩小搜索范围</p>
+        <!-- 充电站列表 -->
+        <div class="max-w-4xl mx-auto">
+            <div class="bg-white rounded-xl shadow-lg p-4">
+                <h2 class="text-lg font-semibold mb-3">充电站列表</h2>
+                <div id="stationsList" class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                    <div class="text-center text-gray-500 py-6">
+                        <i class="fa fa-search text-2xl mb-2"></i>
+                        <p>请点击搜索按钮开始查找充电站</p>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- 页脚 -->
-    <footer class="bg-dark text-white py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="text-gray-400">© 2025 充电站地图抓取工具 - 数据仅供参考</p>
-        </div>
-    </footer>
-
     <script>
         // 全局变量
-        let map; // 高德地图实例
-        let currentStations = []; // 当前显示的充电站数据
-        let statsChart = null; // 统计图表实例
-        let mapMarkers = []; // 地图标记数组
+        let map;
+        let placeSearch;
 
-        // DOM 元素
+        // DOM元素
         const locationInput = document.getElementById('locationInput');
         const radiusSelect = document.getElementById('radiusSelect');
         const searchBtn = document.getElementById('searchBtn');
         const stationsList = document.getElementById('stationsList');
-        const stationCount = document.getElementById('stationCount');
-        const avgServiceFee = document.getElementById('avgServiceFee');
-        const avgRating = document.getElementById('avgRating');
-        const stationListCount = document.getElementById('stationListCount');
-        const stationModal = document.getElementById('stationModal');
-        const modalContent = document.getElementById('modalContent');
-        const modalTitle = document.getElementById('modalTitle');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const helpBtn = document.getElementById('helpBtn');
-        const helpModal = document.getElementById('helpModal');
-        const closeHelpBtn = document.getElementById('closeHelpBtn');
-        const operatorFilter = document.getElementById('operatorFilter');
-        const typeFilter = document.getElementById('typeFilter');
-        const ratingFilter = document.getElementById('ratingFilter');
-        const loadingIndicator = document.getElementById('loadingIndicator');
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
-            initStatsChart();
+            initMap();
             setupEventListeners();
         });
 
-        // 设置事件监听器
-        function setupEventListeners() {
-            searchBtn.addEventListener('click', searchStations);
-            locationInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') searchStations();
-            });
-            
-            closeModalBtn.addEventListener('click', closeModal);
-            helpBtn.addEventListener('click', openHelpModal);
-            closeHelpBtn.addEventListener('click', closeHelpModal);
-            
-            operatorFilter.addEventListener('change', filterStations);
-            typeFilter.addEventListener('change', filterStations);
-            ratingFilter.addEventListener('change', filterStations);
-            
-            // 点击模态框外部关闭
-            stationModal.addEventListener('click', function(e) {
-                if (e.target === stationModal) closeModal();
-            });
-            
-            helpModal.addEventListener('click', function(e) {
-                if (e.target === helpModal) closeHelpModal();
-            });
-        }
-
-        // 初始化高德地图
+        // 初始化地图
         function initMap() {
-            if (map) return map;
-            
             // 创建地图实例
             map = new AMap.Map("mapContainer", {
-                zoom: 15,
+                zoom: 12,
                 center: [116.405, 39.908],
                 viewMode: '3D'
             });
@@ -372,10 +112,27 @@
             map.addControl(new AMap.Scale());
             map.addControl(new AMap.ToolBar());
             
-            return map;
+            // 初始化POI搜索
+            AMap.plugin('AMap.PlaceSearch', function() {
+                placeSearch = new AMap.PlaceSearch({
+                    pageSize: 20,
+                    pageIndex: 1,
+                    types: '150500', // 充电站分类代码
+                    map: map,
+                    panel: "stationsList"
+                });
+            });
         }
 
-        // 搜索周边充电站
+        // 设置事件监听器
+        function setupEventListeners() {
+            searchBtn.addEventListener('click', searchStations);
+            locationInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') searchStations();
+            });
+        }
+
+        // 搜索充电站
         function searchStations() {
             const location = locationInput.value.trim();
             const radius = parseInt(radiusSelect.value);
@@ -385,10 +142,13 @@
                 return;
             }
             
-            showLoading();
-            
-            // 初始化地图
-            const map = initMap();
+            // 显示加载状态
+            stationsList.innerHTML = `
+                <div class="text-center text-gray-500 py-6">
+                    <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                    <p>正在搜索充电站...</p>
+                </div>
+            `;
             
             // 地理编码获取经纬度
             AMap.plugin('AMap.Geocoder', function() {
@@ -411,401 +171,36 @@
                         map.add(circle);
                         
                         // 搜索周边充电站
-                        AMap.plugin('AMap.PlaceSearch', function() {
-                            var placeSearch = new AMap.PlaceSearch({
-                                pageSize: 20,
-                                pageIndex: 1,
-                                types: '150500', // 充电站分类代码
-                                map: map,
-                                panel: "stationsList"
-                            });
-                            
-                            placeSearch.searchNearBy('充电站', point, radius * 1000, function(status, result) {
-                                hideLoading();
-                                if (status === 'complete') {
-                                    // 处理搜索结果
-                                    processSearchResults(result);
-                                } else {
-                                    alert('搜索失败，请稍后重试');
+                        placeSearch.searchNearBy('充电站', point, radius * 1000, function(status, result) {
+                            if (status === 'complete') {
+                                if (result.pois.length === 0) {
+                                    stationsList.innerHTML = `
+                                        <div class="text-center text-gray-500 py-6">
+                                            <i class="fa fa-info-circle text-2xl mb-2"></i>
+                                            <p>在该区域未找到充电站</p>
+                                        </div>
+                                    `;
                                 }
-                            });
+                            } else {
+                                stationsList.innerHTML = `
+                                    <div class="text-center text-red-500 py-6">
+                                        <i class="fa fa-exclamation-circle text-2xl mb-2"></i>
+                                        <p>搜索失败，请稍后重试</p>
+                                    </div>
+                                `;
+                            }
                         });
                     } else {
-                        hideLoading();
-                        alert('无法找到该位置，请检查输入是否正确');
+                        stationsList.innerHTML = `
+                            <div class="text-center text-red-500 py-6">
+                                <i class="fa fa-exclamation-circle text-2xl mb-2"></i>
+                                <p>无法找到该位置，请检查输入是否正确</p>
+                            </div>
+                        `;
                     }
                 });
             });
         }
-
-        // 处理搜索结果
-        function processSearchResults(result) {
-            if (!result || !result.pois) return;
-            
-            // 清空之前的标记
-            clearMapMarkers();
-            
-            // 转换结果格式
-            currentStations = result.pois.map(poi => ({
-                id: poi.id,
-                name: poi.name,
-                address: poi.address,
-                operator: poi.business_area || '未知',
-                type: '直流快充', // 需要进一步API调用获取
-                power: '60kW', // 需要进一步API调用获取
-                serviceFee: 0.6, // 示例数据
-                electricityFee: 1.2, // 示例数据
-                totalFee: 1.8, // 示例数据
-                rating: 4.5, // 示例数据
-                comments: 100, // 示例数据
-                distance: parseFloat(poi.distance) / 1000, // 转换为公里
-                latitude: poi.location.getLat(),
-                longitude: poi.location.getLng(),
-                available: 5, // 示例数据
-                total: 10, // 示例数据
-                openTime: '24小时营业', // 示例数据
-                facilities: ['免费停车', 'WiFi'] // 示例数据
-            }));
-            
-            // 更新统计信息
-            updateStatistics();
-            
-            // 更新列表显示
-            updateStationList();
-            
-            // 添加标记点击事件
-            addMarkerClickEvents();
-        }
-
-        // 清空地图标记
-        function clearMapMarkers() {
-            mapMarkers.forEach(marker => {
-                map.remove(marker);
-            });
-            mapMarkers = [];
-        }
-
-        // 添加标记点击事件
-        function addMarkerClickEvents() {
-            // 获取地图上的所有标记
-            const markers = document.querySelectorAll('.amap-marker');
-            markers.forEach((marker, index) => {
-                marker.addEventListener('click', function() {
-                    if (currentStations[index]) {
-                        showStationDetail(currentStations[index].id);
-                    }
-                });
-            });
-        }
-
-        // 更新统计信息
-        function updateStatistics() {
-            if (currentStations.length === 0) {
-                stationCount.textContent = '0';
-                avgServiceFee.textContent = '¥0.00';
-                avgRating.textContent = '0.0';
-                stationListCount.textContent = '0个结果';
-                return;
-            }
-            
-            stationCount.textContent = currentStations.length;
-            stationListCount.textContent = `${currentStations.length}个结果`;
-            
-            const totalServiceFee = currentStations.reduce((sum, station) => sum + station.serviceFee, 0);
-            const averageServiceFee = totalServiceFee / currentStations.length;
-            avgServiceFee.textContent = `¥${averageServiceFee.toFixed(2)}`;
-            
-            const totalRating = currentStations.reduce((sum, station) => sum + station.rating, 0);
-            const averageRating = totalRating / currentStations.length;
-            avgRating.textContent = averageRating.toFixed(1);
-            
-            updateStatsChart();
-        }
-
-        // 更新充电站列表
-        function updateStationList(stations = currentStations) {
-            if (stations.length === 0) {
-                stationsList.innerHTML = `
-                    <div class="text-center text-gray-500 py-8">
-                        <i class="fa fa-search text-2xl mb-2"></i>
-                        <p>未找到符合条件的充电站</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            stationsList.innerHTML = stations.map(station => `
-                <div class="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 cursor-pointer transition-all border border-gray-100 hover:border-primary/30" onclick="showStationDetail('${station.id}')">
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <h4 class="font-semibold text-dark">${station.name}</h4>
-                            <p class="text-sm text-gray-600 mt-1">${station.address}</p>
-                            <div class="flex items-center mt-2 space-x-4">
-                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${station.operator}</span>
-                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">${station.type}</span>
-                                <span class="text-xs text-gray-500">${station.distance.toFixed(1)}公里</span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="flex items-center justify-end space-x-1">
-                                ${Array(Math.floor(station.rating)).fill().map(() => '<i class="fa fa-star text-yellow-400"></i>').join('')}
-                                ${station.rating % 1 >= 0.5 ? '<i class="fa fa-star-half-o text-yellow-400"></i>' : ''}
-                            </div>
-                            <p class="text-sm font-medium text-dark mt-1">¥${station.totalFee}/度</p>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // 筛选充电站
-        function filterStations() {
-            const operator = operatorFilter.value;
-            const type = typeFilter.value;
-            const rating = ratingFilter.value;
-            
-            let filtered = [...currentStations];
-            
-            if (operator !== 'all') {
-                filtered = filtered.filter(station => station.operator === operator);
-            }
-            
-            if (type !== 'all') {
-                filtered = filtered.filter(station => station.type === type);
-            }
-            
-            if (rating !== 'all') {
-                filtered = filtered.filter(station => station.rating >= parseFloat(rating));
-            }
-            
-            updateStationList(filtered);
-        }
-
-        // 显示充电站详情
-        function showStationDetail(stationId) {
-            const station = currentStations.find(s => s.id === stationId);
-            if (!station) return;
-            
-            modalTitle.textContent = station.name;
-            modalContent.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <div class="space-y-3">
-                            <div>
-                                <p class="text-sm text-gray-500">运营商</p>
-                                <p class="font-medium">${station.operator}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">地址</p>
-                                <p>${station.address}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">距离</p>
-                                <p class="text-primary font-medium">${station.distance.toFixed(1)}公里</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">营业时间</p>
-                                <p>${station.openTime}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="space-y-3">
-                            <div>
-                                <p class="text-sm text-gray-500">充电类型</p>
-                                <p class="font-medium">${station.type}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">功率</p>
-                                <p>${station.power}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">服务费</p>
-                                <p class="text-primary font-medium">¥${station.serviceFee}/度</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">电费</p>
-                                <p>¥${station.electricityFee}/度</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">总计</p>
-                                <p class="text-dark font-bold">¥${station.totalFee}/度</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4 mt-6">
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-sm text-gray-500 mb-2">充电桩数量</p>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div class="bg-green-500 h-2 rounded-full" style="width: ${(station.available / station.total) * 100}%"></div>
-                            </div>
-                            <span class="text-sm font-medium">${station.available}/${station.total}</span>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <p class="text-sm text-gray-500 mb-2">用户评分</p>
-                        <div class="flex items-center space-x-1">
-                            ${Array(Math.floor(station.rating)).fill().map(() => '<i class="fa fa-star text-yellow-400"></i>').join('')}
-                            ${station.rating % 1 >= 0.5 ? '<i class="fa fa-star-half-o text-yellow-400"></i>' : ''}
-                            <span class="text-sm font-medium ml-1">${station.rating}</span>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1">${station.comments}条评价</p>
-                    </div>
-                </div>
-                
-                <div class="mt-6">
-                    <p class="text-sm font-medium text-gray-700 mb-2">设施服务</p>
-                    <div class="flex flex-wrap gap-2">
-                        ${station.facilities.map(facility => `
-                            <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">${facility}</span>
-                        `).join('')}
-                    </div>
-                </div>
-                
-                <div class="mt-6 flex space-x-3">
-                    <button class="flex-1 bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-lg transition-colors">
-                        <i class="fa fa-navigation mr-2"></i>导航到这里
-                    </button>
-                    <button class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-lg transition-colors">
-                        <i class="fa fa-share mr-2"></i>分享
-                    </button>
-                </div>
-            `;
-            
-            stationModal.classList.remove('hidden');
-        }
-
-        // 关闭模态框
-        function closeModal() {
-            stationModal.classList.add('hidden');
-        }
-
-        // 打开帮助模态框
-        function openHelpModal() {
-            helpModal.classList.remove('hidden');
-        }
-
-        // 关闭帮助模态框
-        function closeHelpModal() {
-            helpModal.classList.add('hidden');
-        }
-
-        // 显示加载指示器
-        function showLoading() {
-            loadingIndicator.classList.remove('hidden');
-        }
-
-        // 隐藏加载指示器
-        function hideLoading() {
-            loadingIndicator.classList.add('hidden');
-        }
-
-        // 初始化统计图表
-        function initStatsChart() {
-            const chartDom = document.getElementById('statsChart');
-            statsChart = echarts.init(chartDom);
-            
-            const option = {
-                tooltip: {
-                    trigger: 'item'
-                },
-                legend: {
-                    top: '5%',
-                    left: 'center'
-                },
-                series: [
-                    {
-                        name: '运营商分布',
-                        type: 'pie',
-                        radius: ['40%', '70%'],
-                        avoidLabelOverlap: false,
-                        itemStyle: {
-                            borderRadius: 10,
-                            borderColor: '#fff',
-                            borderWidth: 2
-                        },
-                        label: {
-                            show: false,
-                            position: 'center'
-                        },
-                        emphasis: {
-                            label: {
-                                show: true,
-                                fontSize: 16,
-                                fontWeight: 'bold'
-                            }
-                        },
-                        labelLine: {
-                            show: false
-                        },
-                        data: [
-                            { value: 0, name: '国家电网' },
-                            { value: 0, name: '特来电' },
-                            { value: 0, name: '星星充电' },
-                            { value: 0, name: '云快充' },
-                            { value: 0, name: '其他' }
-                        ]
-                    }
-                ]
-            };
-            
-            statsChart.setOption(option);
-        }
-
-        // 更新统计图表
-        function updateStatsChart() {
-            if (!statsChart || currentStations.length === 0) return;
-            
-            // 统计运营商分布
-            const operatorStats = {};
-            currentStations.forEach(station => {
-                operatorStats[station.operator] = (operatorStats[station.operator] || 0) + 1;
-            });
-            
-            const chartData = Object.entries(operatorStats).map(([name, value]) => ({ name, value }));
-            
-            const option = {
-                series: [
-                    {
-                        data: chartData
-                    }
-                ]
-            };
-            
-            statsChart.setOption(option);
-        }
-
-        // 窗口大小变化时调整图表
-        window.addEventListener('resize', function() {
-            if (statsChart) {
-                statsChart.resize();
-            }
-        });
-
-        // 平滑滚动
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        // 滚动时改变导航栏样式
-        window.addEventListener('scroll', function() {
-            const nav = document.querySelector('nav');
-            if (window.scrollY > 50) {
-                nav.classList.add('bg-white/95');
-                nav.classList.remove('bg-white/90');
-            } else {
-                nav.classList.add('bg-white/90');
-                nav.classList.remove('bg-white/95');
-            }
-        });
     </script>
 </body>
 </html>
